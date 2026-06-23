@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏢 회의실 예약 관리 시스템 - Frontend
 
-## Getting Started
+> Spring Boot REST API와 연동한 Next.js 기반 회의실 예약 관리 웹 애플리케이션.
+> 달력 + 타임라인 UI로 날짜별 예약 현황을 시각화하고, 드래그 또는 클릭으로 시간대를 선택해 예약할 수 있는 풀스택 프로젝트의 프론트엔드입니다.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🛠 기술 스택
+
+| 분류 | 기술 |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| UI | react-calendar |
+| HTTP | axios (JWT 인터셉터) |
+| Infra | Docker, Docker Compose |
+
+---
+
+## 🖼 화면 예시
+
+### 일반 사용자
+
+#### 회원가입 / 로그인
+![회원가입](docs/일반%20사용자%20회원가입.png)
+![로그인](docs/일반%20사용자%20로그인.png)
+
+#### 메인 (회의실 목록)
+![메인페이지](docs/일반%20사용자%20메인페이지.png)
+
+#### 회의실 기준 예약
+![회의실 기준 예약](docs/일반%20사용자%20회의실%20기준%20예약.png)
+![회의실 기준 예약 결과](docs/일반%20사용자%20회의실%20기준%20예약%20결과.png)
+
+#### 날짜·시간 기준 빈 회의실 찾기
+![빈 회의실 찾기](docs/일반%20사용자%20빈회의실%20찾기.png)
+![날짜시간 기준 예약](docs/일반%20사용자%20날짜시간%20기준%20예약.png)
+
+#### 내 예약 확인 / 취소
+![예약 확인](docs/일반%20사용자%20예약%20확인.png)
+![예약 취소](docs/일반%20사용자%20예약%20취소.png)
+
+---
+
+### 관리자
+
+#### 대시보드
+![어드민 메인](docs/어드민%20메인%20페이지.png)
+
+#### 회의실 등록
+![회의실 등록](docs/어드민%20회의실%20등록.png)
+![회의실 등록 결과](docs/어드민%20회의실%20등록%20결과.png)
+
+#### 전체 예약 현황
+![전체 예약 현황](docs/어드민%20전체%20예약%20현황.png)
+
+#### 회원 목록
+![회원 목록](docs/어드민%20회원%20목록.png)
+
+#### 회의실별 통계
+![통계](docs/어드민%20통계.png)
+
+---
+
+## 📌 주요 기능
+
+### 일반 회원
+- 회원가입 / 로그인 / 로그아웃 (JWT 인증)
+- 회의실 목록 조회
+- 달력 + 타임라인 UI로 날짜별 예약 현황 확인
+- 타임라인 **드래그 또는 클릭**으로 시간대 선택 후 예약 신청
+- 날짜·시간 조건으로 빈 회의실 검색 및 즉시 예약
+- 내 예약 목록 조회 (상태별 탭 필터)
+- 예약 취소
+
+### 관리자
+- 관리자 대시보드 (전체 회의실·오늘 예약·회원·월별 예약 현황)
+- 회의실 등록 / 수정 / 삭제
+- 전체 예약 현황 (상태별 필터)
+- 전체 회원 목록 (권한 뱃지 표시)
+- 회의실별 이용 통계 (바 차트)
+
+---
+
+## 💡 주요 구현 포인트
+
+| 항목 | 내용 |
+|---|---|
+| JWT 자동 처리 | axios 인터셉터로 모든 요청에 Authorization 헤더 자동 추가 |
+| 권한별 UI 분리 | ROLE_ADMIN / ROLE_USER에 따라 네비게이션 및 버튼 노출 제어 |
+| 드래그 vs 클릭 구분 | `useRef`로 mouseenter 발생 여부를 추적해 드래그·클릭 이벤트 구분 |
+| 타임라인 범위 선택 | 첫 번째 클릭으로 anchor 지점 설정, 두 번째 클릭으로 범위 확정 |
+| 최대 예약 시간 제한 | 3시간(6슬롯) 초과 선택 시 자동 차단 및 경고 메시지 |
+| 과거 시간대 비활성화 | 오늘 날짜일 경우 현재 시각 이전 슬롯 클릭/드래그 차단 |
+| 선택적 시간 파라미터 | 빈 회의실 검색 시 시작·종료 시간은 선택사항, 미입력 시 모달에서 보완 |
+| 인증 가드 | 비로그인 접근 시 /auth/login으로 자동 리다이렉트 |
+| 관리자 가드 | 비관리자 접근 시 /rooms로 자동 리다이렉트 |
+| 환경변수 분리 | NEXT_PUBLIC_API_URL로 API 주소 관리 |
+
+---
+
+## 📁 페이지 구조
+
+```
+/                        회의실 목록 리다이렉트
+/rooms                   회의실 목록
+/rooms/[id]              회의실 상세 (달력 + 타임라인 예약)
+/rooms/available         빈 회의실 검색
+/rooms/new               회의실 등록 (관리자)
+/rooms/edit/[id]         회의실 수정 (관리자)
+/reservations            내 예약 목록
+/admin                   관리자 대시보드
+/admin/reservations      전체 예약 현황
+/admin/members           회원 목록
+/admin/stats             회의실별 통계
+/auth/login              로그인
+/auth/register           회원가입
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 실행 방법
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 로컬 실행
+```bash
+npm install
+npm run dev
+```
+브라우저에서 http://localhost:3000 접속
 
-## Learn More
+### Docker 실행
+```bash
+docker-compose up --build
+```
 
-To learn more about Next.js, take a look at the following resources:
+> ⚠️ 백엔드(meeting-api)가 먼저 실행되어 있어야 합니다.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔗 백엔드 Repository
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> https://github.com/kimgywls/meeting-api
