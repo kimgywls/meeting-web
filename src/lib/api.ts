@@ -6,6 +6,7 @@ import type {
   Room,
   Reservation,
   ReservationRequest,
+  ReservationUpdateRequest,
   AdminReservationResponse,
   AdminMemberResponse,
   RoomStatsResponse,
@@ -67,6 +68,8 @@ export const reservationsApi = {
     api.get<Reservation[]>('/reservations'),
   create: (data: ReservationRequest) =>
     api.post<Reservation>('/reservations', data),
+  update: (id: number, data: ReservationUpdateRequest) =>
+    api.put<Reservation>(`/reservations/${id}`, data),
   cancel: (id: number) =>
     api.delete<void>(`/reservations/${id}`),
   getRoomReservations: (roomId: number, date: string) =>

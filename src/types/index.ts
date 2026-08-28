@@ -37,6 +37,18 @@ export interface ReservationRequest {
   endTime: string;
 }
 
+export interface ReservationUpdateRequest {
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface ErrorResponse {
+  code: string;
+  message: string;
+}
+
 export interface LoginRequest {
   username: string;
   password: string;
