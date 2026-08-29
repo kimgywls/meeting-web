@@ -2,11 +2,9 @@ services:
   meeting-web:
     build:
       context: .
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/api}
     container_name: meeting-web
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8080/api}
+      - API_SERVER_URL=${API_SERVER_URL:-http://localhost:8080}
     restart: unless-stopped
