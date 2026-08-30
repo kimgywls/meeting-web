@@ -2,9 +2,18 @@ services:
   meeting-web:
     build:
       context: .
+      args:
+        API_SERVER_URL: ${API_SERVER_URL:-http://meeting-api:8080}
     container_name: meeting-web
     ports:
       - "3000:3000"
     environment:
-      - API_SERVER_URL=${API_SERVER_URL:-http://localhost:8080}
+      - API_SERVER_URL=${API_SERVER_URL:-http://meeting-api:8080}
     restart: unless-stopped
+    networks:
+      - meeting-network
+
+networks:
+  meeting-network:
+    external: true
+    name: meeting-network

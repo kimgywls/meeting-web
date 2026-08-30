@@ -9,6 +9,8 @@ FROM node:20-slim AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG API_SERVER_URL=http://meeting-api:8080
+ENV API_SERVER_URL=$API_SERVER_URL
 RUN npm run build
 
 # Stage 3: 실행 (프로덕션)
